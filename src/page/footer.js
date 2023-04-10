@@ -1,25 +1,32 @@
-const Footer = ({ list, type,changeType,changeCompleted }) => {
-  const unDone = list.filter(item => !item.done).length
-  const types = ['all', 'active', 'completed']
+import { useDispatch, useSelector } from 'react-redux'
+import { changeType } from 'store/actions'
 
-	
+const Footer = ({ changeCompleted }) => {
+  const status = ['all', 'active', 'completed']
+	const currentType=useSelector(state=>state.filter)
+  const dispatch = useDispatch()
+
+  const handleClick = item => {
+    dispatch(changeType(item))
+  }
+
   return (
     <footer className='footer'>
       <span className='todo-count'>
-        <strong>{unDone}</strong> item left
+        <strong>{0}</strong> item left
       </span>
 
       <ul className='filters'>
-        {types.map(item => (
-          <li key={item} onClick={()=>changeType(item)} >
-            <a className={item===type?'selected':''} href='#/'>
-              {item}
-            </a>
+        {status.map(item => (
+          <li key={item} onClick={() => handleClick(item)}>
+            <a href={`#/${item}`}  className={currentType===item ? 'selected':''}>{item}</a>
           </li>
         ))}
       </ul>
 
-      <button className='clear-completed' onClick={changeCompleted}>Clear completed</button>
+      <button className='clear-completed' onClick={changeCompleted}>
+        Clear completed
+      </button>
     </footer>
   )
 }

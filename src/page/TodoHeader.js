@@ -1,24 +1,21 @@
-import { useRef } from "react"
+import { useRef } from 'react'
+import { useDispatch } from 'react-redux'
+import { addTodo } from 'store/actions/index'
 
-const TodoHeader = ({addTodo}) => {
-	const inputRef=useRef()
+const TodoHeader = () => {
+  const dispatch = useDispatch()
+  const inputRef = useRef()
 
-	const handleKeyUp=(e)=>{
-		if(e.keyCode===13){
-			addTodo(inputRef.current.value)
-			inputRef.current.value=''
-		}
-	}
+  const handleKeyUp = e => {
+    if (e.keyCode === 13) {
+      dispatch(addTodo({ name: inputRef.current.value, done: false }))
+      inputRef.current.value = ''
+    }
+  }
   return (
-    <header className="header">
+    <header className='header'>
       <h1>todos</h1>
-      <input
-        className="new-todo"
-        placeholder="What needs to be done?"
-        autoFocus
-				ref={inputRef}
-				onKeyUp={handleKeyUp}
-      />
+      <input className='new-todo' placeholder='What needs to be done?' autoFocus ref={inputRef} onKeyUp={handleKeyUp} />
     </header>
   )
 }

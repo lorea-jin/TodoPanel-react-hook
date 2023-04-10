@@ -1,40 +1,46 @@
-import { context } from 'App.js'
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { delTodo, changeStatus, changeName } from 'store/actions/index'
 
 const TodoItem = ({ item }) => {
-  const { delTodoItem, changeStatus,changeTaskName } = useContext(context)
-  const [currentItem, setCurrent] = useState({id:'',name:''})
-  const editInputRef = useRef()
-  useEffect(() => {
-    editInputRef.current.focus()
-  }, [currentItem])
+  const dispatch = useDispatch()
+  const inputRef = useRef(null)
+  const [currentItem, setCurrent] = useState({})
 
   const showEdit = item => {
     setCurrent(item)
   }
-  const handelKeyUp = e => {
-    if (e.keyCode === 27) {
-      setCurrent({id:'',name:''})
-    }else if(e.keyCode===13){
-			changeTaskName(currentItem)
-			setCurrent({id:'',name:''})
-		}
+  const closeEdit = () => {
+    setCurrent({})
+  }
+
+  useEffect(() => {
+    inputRef.current.focus()
+  }, [currentItem])
+
+  const handleDel = id => {
+    dispatch(delTodo(id))
+  }
+  const changeDone = (id, done) => {
+    dispatch(changeStatus(id, done))
+  }
+
+  const handelKeyUp = (e, id) => {
+    if (e.keyCode === 13) {
+      dispatch(changeName(id, e.target.value))
+      closeEdit()
+    } else if (e.keyCode === 27) {
+      closeEdit()
+    }
   }
   return (
-    <li className={[item.done ? 'completed' : null, item.id === currentItem.id ? 'editing' : null].join(' ')}>
+    <li className={[item.done ? 'completed' : '', item.id === currentItem.id ? 'editing' : ''].join(' ')}>
       <div className='view'>
-        <input className='toggle' type='checkbox' checked={item.done} onChange={() => changeStatus(item.id)} />
+        <input className='toggle' type='checkbox' checked={item.done} onChange={e => changeDone(item.id, e.target.checked)} />
         <label onDoubleClick={() => showEdit(item)}>{item.name}</label>
-        <button className='destroy' onClick={() => delTodoItem(item.id)}></button>
+        <button className='destroy' onClick={() => handleDel(item.id)}></button>
       </div>
-      <input
-        className='edit'
-        value={currentItem.name}
-        onChange={e => setCurrent({ ...currentItem, name: e.target.value })}
-        onBlur={() => setCurrent({id:'',name:''})}
-        onKeyUp={handelKeyUp}
-        ref={editInputRef}
-      />
+      <input className='edit' onKeyUp={e => handelKeyUp(e, item.id)} onBlur={closeEdit} defaultValue={item.name} ref={inputRef} />
     </li>
   )
 }
